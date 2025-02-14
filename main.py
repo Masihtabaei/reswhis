@@ -10,7 +10,7 @@ def initialize_faster_whisper_tiny_model(app: FastAPI):
     model = whisper_online.FasterWhisperASR('en', 'tiny')
     app.state.model['faster-whisper-en-tiny'] = model
     app.state.logger.info('Tiny model of faster Whisper loaded successfully!')
-    warump_file = whisper_online.load_audio_chunk('D:\\masih\\git-repositories\\reswhis\\resources\\samples_jfk.wav', 0, 1)
+    warump_file = whisper_online.load_audio_chunk('./resources/samples_jfk.wav', 0, 1)
     model.transcribe(warump_file)
     app.state.logger.info('Tiny model of faster Whisper warmed up successfully!')
     
