@@ -1,3 +1,5 @@
+# gitatrributes for Python
+
 # Basic .gitattributes for a python repo.
 
 # Source files
@@ -28,7 +30,14 @@
 # ``shelve``, ``marshal``, ``anydbm``, & ``bsddb``
 # (among others).
 
- Common settings that generally should always be used with your language specific settings
+# gitattributes for uv
+
+* text=auto eol=lf
+*.inc linguist-language=Rust
+
+uv.schema.json linguist-generated=true text=auto eol=lf
+
+# gitattributes in common
 
 # Auto detect text files and perform LF normalization
 *          text=auto
