@@ -958,6 +958,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "faster-whisper" },
     { name = "librosa" },
+    { name = "soundfile" },
 ]
 
 [package.metadata]
@@ -965,6 +966,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.8" },
     { name = "faster-whisper", specifier = ">=1.1.1" },
     { name = "librosa", specifier = ">=0.10.2.post1" },
+    { name = "soundfile", specifier = ">=0.13.1" },
 ]
 
 [[package]]
