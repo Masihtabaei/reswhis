@@ -1,6 +1,0 @@
-2025-02-14 10:21:30,731 [SpawnProcess-3: 9644] [MainThread: 15376] [INFO] main: Startup!
-2025-02-14 10:21:35,207 [SpawnProcess-3: 9644] [MainThread: 15376] [INFO] main: Unloaded!
-2025-02-14 10:21:48,340 [SpawnProcess-1: 3008] [MainThread: 21892] [INFO] main: Startup!
-2025-02-14 10:21:50,479 [SpawnProcess-1: 3008] [MainThread: 21892] [INFO] main: Unloaded!
-2025-02-14 10:23:28,867 [SpawnProcess-1: 16152] [MainThread: 23304] [INFO] main: Application startup completed!
-2025-02-14 10:23:31,291 [SpawnProcess-1: 16152] [MainThread: 23304] [INFO] main: Application shutdown process completed!
