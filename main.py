@@ -5,8 +5,9 @@ import logging
 import sys
 
 def load_faster_whisper_tiny_model(app: FastAPI):
-    app.state.whisper_tiny_model = whisper_online.FasterWhisperASR('en', 'tiny')
-    app.state.logger.info('Tiny model loaded successfully!')
+    app.state.model = dict()
+    app.state.model['faster-whisper-en-tiny'] = whisper_online.FasterWhisperASR('en', 'tiny')
+    app.state.logger.info('Tiny model of faster Whisper loaded successfully!')
     
 def configure_logger(app: FastAPI):
     logger = logging.getLogger(__name__)
