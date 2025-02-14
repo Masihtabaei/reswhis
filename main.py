@@ -4,10 +4,15 @@ import whisper_online
 import logging
 import sys
 
-def load_faster_whisper_tiny_model(app: FastAPI):
+
+def initialize_faster_whisper_tiny_model(app: FastAPI):
     app.state.model = dict()
-    app.state.model['faster-whisper-en-tiny'] = whisper_online.FasterWhisperASR('en', 'tiny')
+    model = whisper_online.FasterWhisperASR('en', 'tiny')
+    app.state.model['faster-whisper-en-tiny'] = model
     app.state.logger.info('Tiny model of faster Whisper loaded successfully!')
+    warump_file = whisper_online.load_audio_chunk('D:\\masih\\git-repositories\\reswhis\\resources\\samples_jfk.wav', 0, 1)
+    model.transcribe(warump_file)
+    app.state.logger.info('Tiny model of faster Whisper warmed up successfully!')
     
 def configure_logger(app: FastAPI):
     logger = logging.getLogger(__name__)
@@ -26,7 +31,7 @@ def configure_logger(app: FastAPI):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logger(app)
-    load_faster_whisper_tiny_model(app)
+    initialize_faster_whisper_tiny_model(app)
 
     app.state.logger.info('Application startup completed!')
     yield
