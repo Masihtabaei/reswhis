@@ -12,34 +12,38 @@ import sys
 SAMPLING_RATE = 16000
 MIN_CHUNK = 1.0
 IS_FIRST = False
-
+i = 0
 async def receive_audio_chunk(websocket: WebSocket):
     ''' receive_audio_chunk '''
     # receive all audio that is available by this time
     # blocks operation if less than self.min_chunk seconds is available
     # unblocks if connection is closed or a chunk is available
+    global i
     out = []
     minlimit = MIN_CHUNK * SAMPLING_RATE
     while sum(len(x) for x in out) < minlimit:
         raw_bytes = await websocket.receive_bytes()
-        print(raw_bytes)
+        await websocket.send_text("Ack!")
         if not raw_bytes:
             print('Not raw_bytes')
-#           print("received audio:",len(raw_bytes), "bytes", raw_bytes[:10])
+        print("received audio:",len(raw_bytes), "bytes", raw_bytes[:10])
         sf = soundfile.SoundFile(io.BytesIO(raw_bytes), channels=1, endian="LITTLE", samplerate=SAMPLING_RATE, subtype="PCM_16", format="RAW")
         audio, _ = librosa.load(sf, sr=SAMPLING_RATE, dtype=np.float32)
-        print(out)
         out.append(audio)
-    if not out:
+    print("out is full!")
+    output_audio = np.concatenate(out)  # Merge all chunks into one array
+    soundfile.write(f"output-{i}.wav", output_audio, SAMPLING_RATE, subtype="PCM_16")
+    i += 1
+    #if not out:
         #return None
-        print('None')
-    conc = np.concatenate(out)
-    if IS_FIRST and len(conc) < minlimit:
+        #print('None')
+    #conc = np.concatenate(out)
+    #if IS_FIRST and len(conc) < minlimit:
         #return None
-        print('None')
-    IS_FIRST.is_first = False
+    #    print('None')
+    #IS_FIRST = False
     # return np.concatenate(out)
-    print(np.concatenate(out))
+    #print(np.concatenate(out))
 
 def initialize_faster_whisper_tiny_model(app: FastAPI):
     ''' initialize_faster_whisper_tiny_model '''
@@ -76,12 +80,14 @@ async def lifespan(app: FastAPI):
     yield
     app.state.logger.info('Application shutdown process completed!')
 
+
 app = FastAPI(lifespan=lifespan)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     ''' websocket_endpoint '''
+    #receive_audio_chunk(websocket=websocket)
     await websocket.accept()
+    print("Accepted")
     while True:
         await receive_audio_chunk(websocket=websocket)
-        #await websocket.send_text("You sent nothing!")
