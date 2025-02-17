@@ -95,7 +95,6 @@ async def lifespan(instance: FastAPI):
     yield
     instance.state.logger.info('Application shutdown process completed!')
 
-
 app = FastAPI(lifespan=lifespan)
 
 @app.get('/info')
@@ -113,6 +112,6 @@ async def info():
 async def transcribe(websocket: WebSocket):
     ''' Serves as a websocket-endpoint for transcription '''
     await websocket.accept()
-    print("Accepted")
     worker = Worker(websocket)
+    app.state.logger.info('Connection established successfully!')
     await worker.run()
