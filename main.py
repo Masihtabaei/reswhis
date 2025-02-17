@@ -7,19 +7,17 @@ import librosa
 import soundfile
 from fastapi import FastAPI, WebSocket
 import whisper_online
-
+from config import settings
 
 
 SAMPLING_RATE = 16000
 MIN_CHUNK = 1.0
 IS_FIRST = True
-#i = 0
 async def receive_audio_chunk(websocket: WebSocket):
     ''' receive_audio_chunk '''
     # receive all audio that is available by this time
     # blocks operation if less than self.min_chunk seconds is available
     # unblocks if connection is closed or a chunk is available
-    #global i
     global IS_FIRST
     out = []
     minlimit = MIN_CHUNK * SAMPLING_RATE
@@ -67,7 +65,7 @@ def configure_logger(instance: FastAPI):
     formatter = logging.Formatter('%(asctime)s [%(processName)s: %(process)d] [%(threadName)s: %(thread)d] [%(levelname)s] %(name)s: %(message)s')
     stream_handler = logging.StreamHandler(sys.stdout)
     stream_handler.setFormatter(formatter)
-    file_handler = logging.FileHandler('info.log')
+    file_handler = logging.FileHandler('debug.log')
     file_handler.setFormatter(formatter)
 
     logger.addHandler(stream_handler)
@@ -80,7 +78,6 @@ async def lifespan(instance: FastAPI):
     ''' lifespan '''
     configure_logger(app)
     initialize_faster_whisper_tiny_model(app)
-
     instance.state.logger.info('Application startup completed!')
     yield
     instance.state.logger.info('Application shutdown process completed!')
@@ -91,7 +88,6 @@ app = FastAPI(lifespan=lifespan)
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     ''' websocket_endpoint '''
-    #receive_audio_chunk(websocket=websocket)
     await websocket.accept()
     app.state.model['faster-whisper-en-tiny-online'].init()
     print("Accepted")

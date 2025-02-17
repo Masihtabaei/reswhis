@@ -8,6 +8,7 @@ dependencies = [
     "fastapi[standard]>=0.115.8",
     "faster-whisper>=1.1.1",
     "librosa>=0.10.2.post1",
+    "pydantic-settings>=2.7.1",
     "sounddevice>=0.5.1",
     "soundfile>=0.13.1",
 ]
