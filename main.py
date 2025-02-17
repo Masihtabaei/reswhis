@@ -37,14 +37,12 @@ async def receive_audio_chunk(websocket: WebSocket):
     #i += 1
     if not out:
         return None
-        #print('None')
     conc = np.concatenate(out)
     if IS_FIRST and len(conc) < minlimit:
         return None
-    #    print('None')
+    
     IS_FIRST = False
     return np.concatenate(out)
-    #print(np.concatenate(out))
 
 def parse_settings(instance: FastAPI):
     app.state.settings = Settings()
