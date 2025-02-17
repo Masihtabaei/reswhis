@@ -13,6 +13,7 @@ from config import settings
 SAMPLING_RATE = 16000
 MIN_CHUNK = 1.0
 IS_FIRST = True
+
 async def receive_audio_chunk(websocket: WebSocket):
     ''' receive_audio_chunk '''
     # receive all audio that is available by this time
@@ -45,21 +46,27 @@ async def receive_audio_chunk(websocket: WebSocket):
     return np.concatenate(out)
     #print(np.concatenate(out))
 
-def initialize_faster_whisper_tiny_model(instance: FastAPI):
-    ''' initialize_faster_whisper_tiny_model '''
-    instance.state.model = dict()
-    model = whisper_online.FasterWhisperASR('en', 'tiny')
-    instance.state.model['faster-whisper-en-tiny'] = model
-    instance.state.logger.info('Tiny model of faster Whisper loaded successfully!')
+
+
+def load_model(instance: FastAPI):
+    ''' Loads the model desired '''
+    instance.state.model = whisper_online.FasterWhisperASR(settings.language, settings.model_size)
+    instance.state.logger.info('Model loaded successfully!')
+
+def warmup_loaded_model(instance: FastAPI):
+    ''' Warumups the model loaded '''
     warump_file = whisper_online.load_audio_chunk('./resources/samples_jfk.wav', 0, 1)
-    model.transcribe(warump_file)
-    instance.state.logger.info('Tiny model of faster Whisper warmed up successfully!')
-    online = whisper_online.OnlineASRProcessor(model)
-    instance.state.model['faster-whisper-en-tiny-online'] = online
-    instance.state.logger.info('Tiny online transcriber of faster Whisper up and running!')
+    instance.state.model.transcribe(warump_file)
+    instance.state.logger.info('Model warmed up successfully!')
+
+def initialize_transcriber(instance: FastAPI):
+    ''' Instantiates and initializes a transcriber from the model loaded '''
+    instance.state.transcriber = whisper_online.OnlineASRProcessor(instance.state.model)
+    instance.state.logger.info('Transcriber initialized successfully!')
+
 
 def configure_logger(instance: FastAPI):
-    ''' configure_logger '''
+    ''' Configures the logger '''
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s [%(processName)s: %(process)d] [%(threadName)s: %(thread)d] [%(levelname)s] %(name)s: %(message)s')
@@ -75,9 +82,11 @@ def configure_logger(instance: FastAPI):
 
 @asynccontextmanager
 async def lifespan(instance: FastAPI):
-    ''' lifespan '''
+    ''' Manages the startup and shutdown processes '''
     configure_logger(app)
-    initialize_faster_whisper_tiny_model(app)
+    load_model(app)
+    warmup_loaded_model(app)
+    initialize_transcriber(app)
     instance.state.logger.info('Application startup completed!')
     yield
     instance.state.logger.info('Application shutdown process completed!')
@@ -99,12 +108,12 @@ async def info():
 async def websocket_endpoint(websocket: WebSocket):
     ''' websocket_endpoint '''
     await websocket.accept()
-    app.state.model['faster-whisper-en-tiny-online'].init()
+    app.state.transcriber.init()
     print("Accepted")
     while True:
         a = await receive_audio_chunk(websocket=websocket)
         if a is None:
             break
-        app.state.model['faster-whisper-en-tiny-online'].insert_audio_chunk(a)
-        o = app.state.model['faster-whisper-en-tiny-online'].process_iter()
+        app.state.transcriber.insert_audio_chunk(a)
+        o = app.state.transcriber.process_iter()
         print(o)
