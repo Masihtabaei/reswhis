@@ -104,8 +104,8 @@ async def info():
         'minimum_chunk_size': settings.minimum_chunk_size
     }
 
-@app.websocket('/ws')
-async def websocket_endpoint(websocket: WebSocket):
+@app.websocket('/transcribe')
+async def transcribe(websocket: WebSocket):
     ''' websocket_endpoint '''
     await websocket.accept()
     app.state.transcriber.init()
