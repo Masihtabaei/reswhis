@@ -85,7 +85,17 @@ async def lifespan(instance: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.websocket("/ws")
+@app.get('/info')
+async def info():
+    return {
+        'backend': settings.backend,
+        'model_size': settings.model_size,
+        'language': settings.language,
+        'sampling_rate': settings.sampling_rate,
+        'minimum_chunk_size': settings.minimum_chunk_size
+    }
+
+@app.websocket('/ws')
 async def websocket_endpoint(websocket: WebSocket):
     ''' websocket_endpoint '''
     await websocket.accept()
