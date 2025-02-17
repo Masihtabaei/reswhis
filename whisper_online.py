@@ -465,10 +465,10 @@ class OnlineASRProcessor:
         p = self.commited[:k]
         p = [t for _,_,t in p]
         prompt = []
-        l = 0
+        l = 0  # noqa: E741
         while p and l < 200:  # 200 characters prompt size
             x = p.pop(-1)
-            l += len(x)+1
+            l += len(x)+1  # noqa: E741
             prompt.append(x)
         non_prompt = self.commited[k:]
         return self.asr.sep.join(prompt[::-1]), self.asr.sep.join(t for _,_,t in non_prompt)
@@ -525,7 +525,8 @@ class OnlineASRProcessor:
         return self.to_flush(o)
 
     def chunk_completed_sentence(self):
-        if self.commited == []: return
+        if self.commited == []: 
+            return
         logger.debug(self.commited)
         sents = self.words_to_sentences(self.commited)
         for s in sents:
@@ -541,7 +542,8 @@ class OnlineASRProcessor:
         self.chunk_at(chunk_at)
 
     def chunk_completed_segment(self, res):
-        if self.commited == []: return
+        if self.commited == []: 
+            return
 
         ends = self.asr.segments_end_ts(res)
 
