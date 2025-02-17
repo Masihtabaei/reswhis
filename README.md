@@ -1,1 +1,1 @@
-TBD
+[![Linting with ruff](https://github.com/Masihtabaei/reswhis/actions/workflows/ruff.yml/badge.svg)](https://github.com/Masihtabaei/reswhis/actions/workflows/ruff.yml)
