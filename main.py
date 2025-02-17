@@ -10,35 +10,29 @@ import whisper_online
 from config import Settings
 
 
-SAMPLING_RATE = 16000
-MIN_CHUNK = 1.0
 IS_FIRST = True
 
 async def receive_audio_chunk(websocket: WebSocket):
     ''' receive_audio_chunk '''
-    # receive all audio that is available by this time
-    # blocks operation if less than self.min_chunk seconds is available
-    # unblocks if connection is closed or a chunk is available
     global IS_FIRST
+    sampling_rate = websocket.app.state.settings.sampling_rate
     out = []
-    minlimit = MIN_CHUNK * SAMPLING_RATE
-    while sum(len(x) for x in out) < minlimit:
+    lower_bound = websocket.app.state.settings.minimum_chunk_size * sampling_rate
+    while sum(len(x) for x in out) < lower_bound:
         raw_bytes = await websocket.receive_bytes()
-        await websocket.send_text("Ack!")
+        await websocket.send_text("ACK")
         if not raw_bytes:
             break
-        #print("received audio:",len(raw_bytes), "bytes", raw_bytes[:10])
-        sf = soundfile.SoundFile(io.BytesIO(raw_bytes), channels=1, endian="LITTLE", samplerate=SAMPLING_RATE, subtype="PCM_16", format="RAW")
-        audio, _ = librosa.load(sf, sr=SAMPLING_RATE, dtype=np.float32)
+        sf = soundfile.SoundFile(io.BytesIO(raw_bytes), channels=1, endian="LITTLE", samplerate=sampling_rate, subtype="PCM_16", format="RAW")
+        audio, _ = librosa.load(sf, sr=sampling_rate, dtype=np.float32)
         out.append(audio)
-    #print("out is full!")
     #output_audio = np.concatenate(out)  # Merge all chunks into one array
     #soundfile.write(f"output-{i}.wav", output_audio, SAMPLING_RATE, subtype="PCM_16")
     #i += 1
     if not out:
         return None
     conc = np.concatenate(out)
-    if IS_FIRST and len(conc) < minlimit:
+    if IS_FIRST and len(conc) < lower_bound:
         return None
     
     IS_FIRST = False
