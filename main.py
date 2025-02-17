@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import numpy as np
 import librosa
 import soundfile
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import whisper_online
 from config import Settings
 
@@ -43,14 +43,16 @@ class Worker:
         return np.concatenate(out)
 
     async def run(self):
-        while True:
-            a = await self.receive_audio_chunk()
-            if a is None:
-                break
-            self.transcriber.insert_audio_chunk(a)
-            o = self.transcriber.process_iter()
-            print(o)
-
+        try:
+            while True:
+                a = await self.receive_audio_chunk()
+                if a is None:
+                    break
+                self.transcriber.insert_audio_chunk(a)
+                o = self.transcriber.process_iter()
+                print(o)
+        except WebSocketDisconnect:
+            self.websocket.app.state.logger.info('Connection closed!')
 
 def parse_settings(instance: FastAPI):
     app.state.settings = Settings()
