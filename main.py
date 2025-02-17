@@ -1,12 +1,13 @@
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket
-import whisper_online
-import numpy as np
-import logging
-import librosa
-import soundfile
 import io
 import sys
+import logging
+from contextlib import asynccontextmanager
+import numpy as np
+import librosa
+import soundfile
+from fastapi import FastAPI, WebSocket
+import whisper_online
+
 
 
 SAMPLING_RATE = 16000
