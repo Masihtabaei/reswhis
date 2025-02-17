@@ -7,7 +7,7 @@ import librosa
 import soundfile
 from fastapi import FastAPI, WebSocket
 import whisper_online
-from config import settings
+from config import Settings
 
 
 SAMPLING_RATE = 16000
@@ -46,11 +46,13 @@ async def receive_audio_chunk(websocket: WebSocket):
     return np.concatenate(out)
     #print(np.concatenate(out))
 
-
+def parse_settings(instance: FastAPI):
+    app.state.settings = Settings()
+    instance.state.logger.info('Settings parsed successfully!')
 
 def load_model(instance: FastAPI):
     ''' Loads the model desired '''
-    instance.state.model = whisper_online.FasterWhisperASR(settings.language, settings.model_size)
+    instance.state.model = whisper_online.FasterWhisperASR(app.state.settings.language, app.state.settings.model_size)
     instance.state.logger.info('Model loaded successfully!')
 
 def warmup_loaded_model(instance: FastAPI):
@@ -63,7 +65,6 @@ def initialize_transcriber(instance: FastAPI):
     ''' Instantiates and initializes a transcriber from the model loaded '''
     instance.state.transcriber = whisper_online.OnlineASRProcessor(instance.state.model)
     instance.state.logger.info('Transcriber initialized successfully!')
-
 
 def configure_logger(instance: FastAPI):
     ''' Configures the logger '''
@@ -84,6 +85,7 @@ def configure_logger(instance: FastAPI):
 async def lifespan(instance: FastAPI):
     ''' Manages the startup and shutdown processes '''
     configure_logger(app)
+    parse_settings(app)
     load_model(app)
     warmup_loaded_model(app)
     initialize_transcriber(app)
@@ -98,11 +100,11 @@ app = FastAPI(lifespan=lifespan)
 async def info():
     ''' Serves as a REST-endpoint for service information retrieval '''
     return {
-        'backend': settings.backend,
-        'model_size': settings.model_size,
-        'language': settings.language,
-        'sampling_rate': settings.sampling_rate,
-        'minimum_chunk_size': settings.minimum_chunk_size
+        'backend': app.state.settings.backend,
+        'model_size': app.state.settings.model_size,
+        'language': app.state.settings.language,
+        'sampling_rate': app.state.settings.sampling_rate,
+        'minimum_chunk_size': app.state.settings.minimum_chunk_size
     }
 
 @app.websocket('/transcribe')
