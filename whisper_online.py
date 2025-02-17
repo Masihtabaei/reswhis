@@ -44,13 +44,13 @@ class ASRBase:
 
 
     def load_model(self, modelsize, cache_dir):
-        raise NotImplemented("must be implemented in the child class")
+        raise NotImplementedError("must be implemented in the child class")
 
     def transcribe(self, audio, init_prompt=""):
-        raise NotImplemented("must be implemented in the child class")
+        raise NotImplementedError("must be implemented in the child class")
 
     def use_vad(self):
-        raise NotImplemented("must be implemented in the child class")
+        raise NotImplementedError("must be implemented in the child class")
 
 
 class WhisperTimestampedASR(ASRBase):
@@ -62,7 +62,6 @@ class WhisperTimestampedASR(ASRBase):
 
     def load_model(self, modelsize=None, cache_dir=None, model_dir=None):
         import whisper
-        import whisper_timestamped
         from whisper_timestamped import transcribe_timestamped
         self.transcribe_timestamped = transcribe_timestamped
         if model_dir is not None:
@@ -558,9 +557,9 @@ class OnlineASRProcessor:
                 logger.debug(f"--- segment chunked at {e:2.2f}")
                 self.chunk_at(e)
             else:
-                logger.debug(f"--- last segment not within commited area")
+                logger.debug("--- last segment not within commited area")
         else:
-            logger.debug(f"--- not enough segments to chunk")
+            logger.debug("--- not enough segments to chunk")
 
 
 
