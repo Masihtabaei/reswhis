@@ -10,33 +10,47 @@ import whisper_online
 from config import Settings
 
 
-IS_FIRST = True
+class Worker:
+    def __init__(self, websocket: WebSocket):
+        self.websocket = websocket
+        self.is_first = True
+        self.transcriber = whisper_online.OnlineASRProcessor(websocket.app.state.model)
+        websocket.app.state.logger.info('Transcriber initialized successfully!')
 
-async def receive_audio_chunk(websocket: WebSocket):
-    ''' receive_audio_chunk '''
-    global IS_FIRST
-    sampling_rate = websocket.app.state.settings.sampling_rate
-    out = []
-    lower_bound = websocket.app.state.settings.minimum_chunk_size * sampling_rate
-    while sum(len(x) for x in out) < lower_bound:
-        raw_bytes = await websocket.receive_bytes()
-        await websocket.send_text("ACK")
-        if not raw_bytes:
-            break
-        sf = soundfile.SoundFile(io.BytesIO(raw_bytes), channels=1, endian="LITTLE", samplerate=sampling_rate, subtype="PCM_16", format="RAW")
-        audio, _ = librosa.load(sf, sr=sampling_rate, dtype=np.float32)
-        out.append(audio)
-    #output_audio = np.concatenate(out)  # Merge all chunks into one array
-    #soundfile.write(f"output-{i}.wav", output_audio, SAMPLING_RATE, subtype="PCM_16")
-    #i += 1
-    if not out:
-        return None
-    conc = np.concatenate(out)
-    if IS_FIRST and len(conc) < lower_bound:
-        return None
-    
-    IS_FIRST = False
-    return np.concatenate(out)
+    async def receive_audio_chunk(self):
+        ''' receive_audio_chunk '''
+        sampling_rate = self.websocket.app.state.settings.sampling_rate
+        out = []
+        lower_bound = self.websocket.app.state.settings.minimum_chunk_size * sampling_rate
+        while sum(len(x) for x in out) < lower_bound:
+            raw_bytes = await self.websocket.receive_bytes()
+            await self.websocket.send_text("ACK")
+            if not raw_bytes:
+                break
+            sf = soundfile.SoundFile(io.BytesIO(raw_bytes), channels=1, endian="LITTLE", samplerate=sampling_rate, subtype="PCM_16", format="RAW")
+            audio, _ = librosa.load(sf, sr=sampling_rate, dtype=np.float32)
+            out.append(audio)
+        #output_audio = np.concatenate(out)  # Merge all chunks into one array
+        #soundfile.write(f"output-{i}.wav", output_audio, SAMPLING_RATE, subtype="PCM_16")
+        #i += 1
+        if not out:
+            return None
+        conc = np.concatenate(out)
+        if self.is_first and len(conc) < lower_bound:
+            return None
+        
+        self.is_first = False
+        return np.concatenate(out)
+
+    async def run(self):
+        while True:
+            a = await self.receive_audio_chunk()
+            if a is None:
+                break
+            self.transcriber.insert_audio_chunk(a)
+            o = self.transcriber.process_iter()
+            print(o)
+
 
 def parse_settings(instance: FastAPI):
     app.state.settings = Settings()
@@ -52,11 +66,6 @@ def warmup_loaded_model(instance: FastAPI):
     warump_file = whisper_online.load_audio_chunk('./resources/samples_jfk.wav', 0, 1)
     instance.state.model.transcribe(warump_file)
     instance.state.logger.info('Model warmed up successfully!')
-
-def initialize_transcriber(instance: FastAPI):
-    ''' Instantiates and initializes a transcriber from the model loaded '''
-    instance.state.transcriber = whisper_online.OnlineASRProcessor(instance.state.model)
-    instance.state.logger.info('Transcriber initialized successfully!')
 
 def configure_logger(instance: FastAPI):
     ''' Configures the logger '''
@@ -80,7 +89,6 @@ async def lifespan(instance: FastAPI):
     parse_settings(app)
     load_model(app)
     warmup_loaded_model(app)
-    initialize_transcriber(app)
     instance.state.logger.info('Application startup completed!')
     yield
     instance.state.logger.info('Application shutdown process completed!')
@@ -103,12 +111,6 @@ async def info():
 async def transcribe(websocket: WebSocket):
     ''' Serves as a websocket-endpoint for transcription '''
     await websocket.accept()
-    app.state.transcriber.init()
     print("Accepted")
-    while True:
-        a = await receive_audio_chunk(websocket=websocket)
-        if a is None:
-            break
-        app.state.transcriber.insert_audio_chunk(a)
-        o = app.state.transcriber.process_iter()
-        print(o)
+    worker = Worker(websocket)
+    await worker.run()
