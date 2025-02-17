@@ -96,6 +96,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get('/info')
 async def info():
+    ''' Serves as a REST-endpoint for service information retrieval '''
     return {
         'backend': settings.backend,
         'model_size': settings.model_size,
@@ -106,7 +107,7 @@ async def info():
 
 @app.websocket('/transcribe')
 async def transcribe(websocket: WebSocket):
-    ''' websocket_endpoint '''
+    ''' Serves as a websocket-endpoint for transcription '''
     await websocket.accept()
     app.state.transcriber.init()
     print("Accepted")
