@@ -11,38 +11,39 @@ import sys
 
 SAMPLING_RATE = 16000
 MIN_CHUNK = 1.0
-IS_FIRST = False
-i = 0
+IS_FIRST = True
+#i = 0
 async def receive_audio_chunk(websocket: WebSocket):
     ''' receive_audio_chunk '''
     # receive all audio that is available by this time
     # blocks operation if less than self.min_chunk seconds is available
     # unblocks if connection is closed or a chunk is available
-    global i
+    #global i
+    global IS_FIRST
     out = []
     minlimit = MIN_CHUNK * SAMPLING_RATE
     while sum(len(x) for x in out) < minlimit:
         raw_bytes = await websocket.receive_bytes()
         await websocket.send_text("Ack!")
         if not raw_bytes:
-            print('Not raw_bytes')
-        print("received audio:",len(raw_bytes), "bytes", raw_bytes[:10])
+            break
+        #print("received audio:",len(raw_bytes), "bytes", raw_bytes[:10])
         sf = soundfile.SoundFile(io.BytesIO(raw_bytes), channels=1, endian="LITTLE", samplerate=SAMPLING_RATE, subtype="PCM_16", format="RAW")
         audio, _ = librosa.load(sf, sr=SAMPLING_RATE, dtype=np.float32)
         out.append(audio)
-    print("out is full!")
-    output_audio = np.concatenate(out)  # Merge all chunks into one array
-    soundfile.write(f"output-{i}.wav", output_audio, SAMPLING_RATE, subtype="PCM_16")
-    i += 1
-    #if not out:
-        #return None
+    #print("out is full!")
+    #output_audio = np.concatenate(out)  # Merge all chunks into one array
+    #soundfile.write(f"output-{i}.wav", output_audio, SAMPLING_RATE, subtype="PCM_16")
+    #i += 1
+    if not out:
+        return None
         #print('None')
-    #conc = np.concatenate(out)
-    #if IS_FIRST and len(conc) < minlimit:
-        #return None
+    conc = np.concatenate(out)
+    if IS_FIRST and len(conc) < minlimit:
+        return None
     #    print('None')
-    #IS_FIRST = False
-    # return np.concatenate(out)
+    IS_FIRST = False
+    return np.concatenate(out)
     #print(np.concatenate(out))
 
 def initialize_faster_whisper_tiny_model(app: FastAPI):
@@ -54,6 +55,9 @@ def initialize_faster_whisper_tiny_model(app: FastAPI):
     warump_file = whisper_online.load_audio_chunk('./resources/samples_jfk.wav', 0, 1)
     model.transcribe(warump_file)
     app.state.logger.info('Tiny model of faster Whisper warmed up successfully!')
+    online = whisper_online.OnlineASRProcessor(model)
+    app.state.model['faster-whisper-en-tiny-online'] = online
+    app.state.logger.info('Tiny online transcriber of faster Whisper up and running!')
 
 def configure_logger(app: FastAPI):
     ''' configure_logger '''
@@ -88,6 +92,12 @@ async def websocket_endpoint(websocket: WebSocket):
     ''' websocket_endpoint '''
     #receive_audio_chunk(websocket=websocket)
     await websocket.accept()
+    app.state.model['faster-whisper-en-tiny-online'].init()
     print("Accepted")
     while True:
-        await receive_audio_chunk(websocket=websocket)
+        a = await receive_audio_chunk(websocket=websocket)
+        if a is None:
+            break
+        app.state.model['faster-whisper-en-tiny-online'].insert_audio_chunk(a)
+        o = app.state.model['faster-whisper-en-tiny-online'].process_iter()
+        print(o)
