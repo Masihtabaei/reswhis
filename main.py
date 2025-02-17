@@ -47,20 +47,20 @@ async def receive_audio_chunk(websocket: WebSocket):
     return np.concatenate(out)
     #print(np.concatenate(out))
 
-def initialize_faster_whisper_tiny_model(app: FastAPI):
+def initialize_faster_whisper_tiny_model(instance: FastAPI):
     ''' initialize_faster_whisper_tiny_model '''
-    app.state.model = dict()
+    instance.state.model = dict()
     model = whisper_online.FasterWhisperASR('en', 'tiny')
-    app.state.model['faster-whisper-en-tiny'] = model
-    app.state.logger.info('Tiny model of faster Whisper loaded successfully!')
+    instance.state.model['faster-whisper-en-tiny'] = model
+    instance.state.logger.info('Tiny model of faster Whisper loaded successfully!')
     warump_file = whisper_online.load_audio_chunk('./resources/samples_jfk.wav', 0, 1)
     model.transcribe(warump_file)
-    app.state.logger.info('Tiny model of faster Whisper warmed up successfully!')
+    instance.state.logger.info('Tiny model of faster Whisper warmed up successfully!')
     online = whisper_online.OnlineASRProcessor(model)
-    app.state.model['faster-whisper-en-tiny-online'] = online
-    app.state.logger.info('Tiny online transcriber of faster Whisper up and running!')
+    instance.state.model['faster-whisper-en-tiny-online'] = online
+    instance.state.logger.info('Tiny online transcriber of faster Whisper up and running!')
 
-def configure_logger(app: FastAPI):
+def configure_logger(instance: FastAPI):
     ''' configure_logger '''
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -72,18 +72,18 @@ def configure_logger(app: FastAPI):
 
     logger.addHandler(stream_handler)
     logger.addHandler(file_handler)
-    app.state.logger = logger
-    app.state.logger.info('Logger configured successfully!')
+    instance.state.logger = logger
+    instance.state.logger.info('Logger configured successfully!')
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(instance: FastAPI):
     ''' lifespan '''
     configure_logger(app)
     initialize_faster_whisper_tiny_model(app)
 
-    app.state.logger.info('Application startup completed!')
+    instance.state.logger.info('Application startup completed!')
     yield
-    app.state.logger.info('Application shutdown process completed!')
+    instance.state.logger.info('Application shutdown process completed!')
 
 
 app = FastAPI(lifespan=lifespan)
