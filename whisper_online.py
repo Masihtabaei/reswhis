@@ -33,13 +33,11 @@ class ASRBase:
 
     def __init__(self, lan, modelsize=None, cache_dir=None, model_dir=None, logfile=sys.stderr):
         self.logfile = logfile
-
         self.transcribe_kargs = {}
         if lan == "auto":
             self.original_language = None
         else:
             self.original_language = lan
-
         self.model = self.load_model(modelsize, cache_dir, model_dir)
 
 
