@@ -15,6 +15,7 @@ class Worker:
         self.websocket = websocket
         self.is_first = True
         self.transcriber = whisper_online.OnlineASRProcessor(websocket.app.state.model)
+        self.transcriber.init()
         websocket.app.state.logger.info('Transcriber initialized successfully!')
 
     async def receive_audio_chunk(self):
