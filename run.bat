@@ -1,4 +1,4 @@
-set BACKEND=faster-
+set BACKEND=openai-whisper
 set MODEL_SIZE=large
 set LANGUAGE=en
 set SAMPLING_RATE=16000

@@ -62,8 +62,15 @@ def parse_settings(instance: FastAPI):
 def load_model(instance: FastAPI):
     ''' Loads the model desired '''
     print(app.state.settings.language)
-    instance.state.model = whisper_online.FasterWhisperASR(lan=app.state.settings.language, modelsize=app.state.settings.model_size)
-    instance.state.logger.info('Model loaded successfully!')
+    if app.state.settings.backend == 'faster-whisper':
+        instance.state.model = whisper_online.FasterWhisperASR(lan=app.state.settings.language, modelsize=app.state.settings.model_size)
+    elif app.state.settings.backend == 'whisper-timestamped':
+        instance.state.model = whisper_online.WhisperTimestampedASR(lan=app.state.settings.language, modelsize=app.state.settings.model_size)
+    elif app.state.settings.backend == 'openai-whisper': 
+        instance.state.model = whisper_online.OpenaiApiASR(lan=app.state.settings.language)
+    else:
+        raise ValueError('No suitable backend was found!')
+    instance.state.logger.info(f'Model with a {app.state.settings.backend} backend loaded successfully!')
 
 def warmup_loaded_model(instance: FastAPI):
     ''' Warumups the model loaded '''
