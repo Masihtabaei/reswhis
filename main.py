@@ -50,8 +50,13 @@ class Worker:
                 if a is None:
                     break
                 self.transcriber.insert_audio_chunk(a)
-                o = self.transcriber.process_iter()
-                print(o)
+                result = self.transcriber.process_iter()
+                print(result)
+                #begin = result[0] * 1000 if result[0] is not None else '-'
+                #end = result[1] * 1000 if result[1] is not None else '-'
+                #transcription = result[2]
+                #self.websocket.app.state.logger.info(f'From {begin} to {end}: {transcription}')
+                #await self.websocket.send_text(f'From {begin} to {end}: {transcription}')
         except WebSocketDisconnect:
             self.websocket.app.state.logger.info('Connection closed!')
 

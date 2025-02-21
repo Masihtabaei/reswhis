@@ -8,9 +8,6 @@
 
 We all know the struggle of naming a project—it’s almost as hard as the project itself. But every creation deserves a name, and this one is no exception. Enter **reswhis**—a blend of **Re**mote **S**treaming **Whis**per. Short, sharp, and to the point, just like the seamless speech-to-text magic it enables. A whisper that travels across the web, captured and transcribe in real-time. 
 
-## Status
-
-[![ruff-Linting](https://github.com/Masihtabaei/reswhis/actions/workflows/ruff.yml/badge.svg)](https://github.com/Masihtabaei/reswhis/actions/workflows/ruff.yml)
 
 ## Tech Stack: Under the Hood
 
