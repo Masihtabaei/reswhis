@@ -1,4 +1,4 @@
-set BACKEND=faster-whisper
+set BACKEND=faster-
 set MODEL_SIZE=large
 set LANGUAGE=en
 set SAMPLING_RATE=16000

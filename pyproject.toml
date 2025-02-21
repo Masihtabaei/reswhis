@@ -11,4 +11,5 @@ dependencies = [
     "pydantic-settings>=2.7.1",
     "sounddevice>=0.5.1",
     "soundfile>=0.13.1",
+    "whisper-timestamped>=1.15.8",
 ]
