@@ -9,6 +9,9 @@
     <h1>WebSocket PCM Audio Recorder</h1>
     <button id="startRecording">Start Recording</button>
     <button id="stopRecording" disabled>Stop Recording</button>
+    <h2>Transcription</h2>
+    <textarea id="transcriptionBox" rows="10" cols="50" readonly></textarea>
+
     <script>
         let ws;
         let mediaRecorder;
@@ -22,7 +25,19 @@
             ws.binaryType = "arraybuffer";
 
             ws.onopen = () => console.log("WebSocket connected");
-            ws.onmessage = (event) => console.log("Server ACK:", event.data);
+            ws.onmessage = (event) => {
+                try {
+                    let data = JSON.parse(event.data);
+                    let from = data.from !== '-' ? `${data.from.toFixed(0)} ms` : 'Unknown';
+                    let to = data.to !== '-' ? `${data.to.toFixed(0)} ms` : 'Unknown';
+                    let transcription = data.content || '';
+                    let textBox = document.getElementById("transcriptionBox");
+                    textBox.value += `[${from} - ${to}]: ${transcription}\n`;
+                    textBox.scrollTop = textBox.scrollHeight;  // Auto-scroll
+                } catch (e) {
+                    console.error("Invalid JSON from server:", event.data);
+                }
+            };
             ws.onclose = () => console.log("WebSocket disconnected");
             ws.onerror = (error) => console.error("WebSocket error:", error);
 

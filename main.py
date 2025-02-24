@@ -28,7 +28,7 @@ class Worker:
         lower_bound = self.websocket.app.state.settings.minimum_chunk_size * sampling_rate
         while sum(len(x) for x in out) < lower_bound:
             raw_bytes = await self.websocket.receive_bytes()
-            await self.websocket.send_text("ACK")
+            #await self.websocket.send_text("ACK")
             if not raw_bytes:
                 break
             sf = soundfile.SoundFile(io.BytesIO(raw_bytes), channels=1, endian="LITTLE", samplerate=sampling_rate, subtype="PCM_16", format="RAW")
@@ -54,12 +54,15 @@ class Worker:
                     break
                 self.transcriber.insert_audio_chunk(a)
                 result = self.transcriber.process_iter()
-                print(result)
-                #begin = result[0] * 1000 if result[0] is not None else '-'
-                #end = result[1] * 1000 if result[1] is not None else '-'
-                #transcription = result[2]
-                #self.websocket.app.state.logger.info(f'From {begin} to {end}: {transcription}')
-                #await self.websocket.send_text(f'From {begin} to {end}: {transcription}')
+                begin = result[0] * 1000 if result[0] is not None else '-'
+                end = result[1] * 1000 if result[1] is not None else '-'
+                transcription = result[2] if result[2] else '-'
+                self.websocket.app.state.logger.info(f'From {begin} to {end}: {transcription}')
+                await self.websocket.send_json({
+                    "from": begin,
+                    "to": end,
+                    "content": transcription
+                })
         except WebSocketDisconnect:
             self.websocket.app.state.logger.info('Connection closed!')
 
@@ -81,7 +84,7 @@ def load_model(instance: FastAPI):
     
     if instance.state.settings.use_voice_activity_detection:
         instance.state.model.use_vad()
-        
+
     instance.state.logger.info(f'Model with a {app.state.settings.backend} backend loaded successfully!')
 
 def warmup_loaded_model(instance: FastAPI):
