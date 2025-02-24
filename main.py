@@ -14,7 +14,10 @@ class Worker:
     def __init__(self, websocket: WebSocket):
         self.websocket = websocket
         self.is_first = True
-        self.transcriber = whisper_online.OnlineASRProcessor(websocket.app.state.model)
+        if self.websocket.app.state.settings.use_voice_activity_controller:
+            self.transcriber = whisper_online.VACOnlineASRProcessor(self.websocket.app.state.settings.minimum_chunk_size, websocket.app.state.model)
+        else:
+            self.transcriber = whisper_online.OnlineASRProcessor(websocket.app.state.model)
         self.transcriber.init()
         websocket.app.state.logger.info('Transcriber initialized successfully!')
 
@@ -119,7 +122,8 @@ async def info():
         'model_size': app.state.settings.model_size,
         'language': app.state.settings.language,
         'sampling_rate': app.state.settings.sampling_rate,
-        'minimum_chunk_size': app.state.settings.minimum_chunk_size
+        'minimum_chunk_size': app.state.settings.minimum_chunk_size,
+        'voice_activity_controller': app.state.settings.use_voice_activity_controller
     }
 
 @app.websocket('/transcribe')
