@@ -78,6 +78,10 @@ def load_model(instance: FastAPI):
         instance.state.model = whisper_online.OpenaiApiASR(lan=app.state.settings.language)
     else:
         raise ValueError('No suitable backend was found!')
+    
+    if instance.state.settings.use_voice_activity_detection:
+        instance.state.model.use_vad()
+        
     instance.state.logger.info(f'Model with a {app.state.settings.backend} backend loaded successfully!')
 
 def warmup_loaded_model(instance: FastAPI):
@@ -123,7 +127,8 @@ async def info():
         'language': app.state.settings.language,
         'sampling_rate': app.state.settings.sampling_rate,
         'minimum_chunk_size': app.state.settings.minimum_chunk_size,
-        'voice_activity_controller': app.state.settings.use_voice_activity_controller
+        'voice_activity_controller': app.state.settings.use_voice_activity_controller,
+        'use_voice_activity_detection': app.state.settings.use_voice_activity_detection
     }
 
 @app.websocket('/transcribe')
