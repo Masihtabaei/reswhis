@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 # This is copied from silero-vad's vad_utils.py:
 # https://github.com/snakers4/silero-vad/blob/f6b1294cb27590fb2452899df98fb234dfef1134/utils_vad.py#L340
@@ -66,7 +67,7 @@ class VADIterator:
         if not torch.is_tensor(x):
             try:
                 x = torch.Tensor(x)
-            except:
+            except Exception:
                 raise TypeError("Audio cannot be casted to tensor. Cast it manually")
 
         window_size_samples = len(x[0]) if x.dim() == 2 else len(x)
@@ -98,7 +99,6 @@ class VADIterator:
 #######################
 # because Silero now requires exactly 512-sized audio chunks 
 
-import numpy as np
 class FixedVADIterator(VADIterator):
     '''It fixes VADIterator by allowing to process any audio length, not only exactly 512 frames at once.
     If audio to be processed at once is long and multiple voiced segments detected, 
