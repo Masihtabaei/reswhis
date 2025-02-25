@@ -29,10 +29,6 @@ Main characteristics of our implementation:
 - **Websocket-based**: Broader client support (also possible to integrate into web apps without native socket support)
 - **Parallel server**: Simultaneous transcription for multiple clients.
 
-## Installation
-
-In all cases you need to install:
-
 ## Requirements
 
 General and independent requirements:
@@ -44,15 +40,12 @@ Requirements for the **faster-whisper** backend:
 1. NVIDIA CUDA Toolkit ([version 12.6 Update 3](https://developer.nvidia.com/cuda-downloads) was tested)
 2. NVIDIA cuDNN Library ([version 9.6.0](https://developer.nvidia.com/cudnn-downloads) was tested)
 
-Requirements for using our test client on a machine using **Microsoft Windows**:
+Requirements for using our test client on a machine using **Microsoft Windows** (can get ignored if you use the web client):
 
 1. FFmpeg ([2024-12-19-git-494c961379-full_build-www.gyan.dev](https://ffmpeg.org/download.html) was tested)
-
+2. websocat ([v1.14.0](https://github.com/vi/websocat/releases/tag/v1.14.0) was tested)
 ## Usage
 
-Firsr clo
-
-## Acknowledgement
 
 1. Clone the repository
 ```
@@ -70,10 +63,18 @@ uv sync
 ```
 run.bat
 ```
-5. Head to the webpage (in your browser) and harness the power of Whisper
+5. Head to the webpage by opening the following `html` file:
 ```
-http://localhost:8000
+client.html
 ```
+
+**Important**: There is a REST-endpoint for pinging the server available at the following address:
+```
+http://localhost:8000/info
+```
+
+## Acknowledgement
+
 
 
 ## License
