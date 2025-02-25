@@ -33,7 +33,7 @@
                     let transcription = data.content || '';
                     let textBox = document.getElementById("transcriptionBox");
                     textBox.value += `[${from} - ${to}]: ${transcription}\n`;
-                    textBox.scrollTop = textBox.scrollHeight;  // Auto-scroll
+                    textBox.scrollTop = textBox.scrollHeight;
                 } catch (e) {
                     console.error("Invalid JSON from server:", event.data);
                 }
@@ -43,7 +43,7 @@
 
             stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-            processor = audioContext.createScriptProcessor(4096, 1, 1);
+            processor = audioContext.createScriptProcessor(1024, 1, 1);
             input = audioContext.createMediaStreamSource(stream);
             input.connect(processor);
             processor.connect(audioContext.destination);

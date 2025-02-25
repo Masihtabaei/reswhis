@@ -22,7 +22,7 @@ We all know the struggle of naming a project—it’s almost as hard as the proj
 
 After countless hours of testing various packages, libraries, and frameworks, we realized there was no **remote**, **robust**, **language-agnostic** WebSocket solution for real-time audio transcription using OpenAI’s Whisper. Existing solutions were usually error-prone, restricted to local use or sophisticated.
 
-Inspired by the **stream socket** (i. e. communication over **TCP**) server implementation of "placeholder", we decided to develop our own WebSocket server for Whisper-based streaming transcription.
+Inspired by the **stream socket** (i. e. direct communication over **TCP**) server implementation of "placeholder", we decided to develop our own WebSocket server for Whisper-based streaming transcription.
 
 Main characteristics of our implementation:
 - **Simple**: Done merely over a weekend by an undergrad student.
@@ -33,13 +33,48 @@ Main characteristics of our implementation:
 
 In all cases you need to install:
 
+## Requirements
+
+General and independent requirements:
+
+1. [uv](https://docs.astral.sh/uv/getting-started/installation/) for managing the project, packages and also dependencies
+
+Requirements for the **faster-whisper** backend:
+
+1. NVIDIA CUDA Toolkit ([version 12.6 Update 3](https://developer.nvidia.com/cuda-downloads) was tested)
+2. NVIDIA cuDNN Library ([version 9.6.0](https://developer.nvidia.com/cudnn-downloads) was tested)
+
+Requirements for using our test client on a machine using **Microsoft Windows**:
+
+1. FFmpeg ([2024-12-19-git-494c961379-full_build-www.gyan.dev](https://ffmpeg.org/download.html) was tested)
+
 ## Usage
 
-TBD
+Firsr clo
 
 ## Acknowledgement
 
-TBD
+1. Clone the repository
+```
+git clone https://github.com/Masihtabaei/reswhis.git
+```
+2. Change the directory
+```
+cd reswhis
+```
+3. Run the uv
+```
+uv sync
+```
+4. Click on the run.bat:
+```
+run.bat
+```
+5. Head to the webpage (in your browser) and harness the power of Whisper
+```
+http://localhost:8000
+```
+
 
 ## License
 
