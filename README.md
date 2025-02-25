@@ -59,7 +59,7 @@ cd reswhis
 ```
 uv sync
 ```
-4. Click on the run.bat:
+4. Click on the run.bat (you can also change the model size, language etc, in this batch file):
 ```
 run.bat
 ```
