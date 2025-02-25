@@ -40,6 +40,16 @@ Requirements for the **faster-whisper** backend:
 1. NVIDIA CUDA Toolkit ([version 12.6 Update 3](https://developer.nvidia.com/cuda-downloads) was tested)
 2. NVIDIA cuDNN Library ([version 9.6.0](https://developer.nvidia.com/cudnn-downloads) was tested)
 
+Requirements for the **whisper-timestamped** backend:
+
+1. TBD
+2. TBD
+
+Requirements for the **ONMLXX** backend:
+
+1. TBD
+2. TBD
+
 Requirements for using our test client on a machine using **Microsoft Windows** (can get ignored if you use the web client):
 
 1. FFmpeg ([2024-12-19-git-494c961379-full_build-www.gyan.dev](https://ffmpeg.org/download.html) was tested)

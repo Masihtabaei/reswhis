@@ -28,11 +28,9 @@
             ws.onmessage = (event) => {
                 try {
                     let data = JSON.parse(event.data);
-                    let from = data.from !== '-' ? `${data.from.toFixed(0)} ms` : 'Unknown';
-                    let to = data.to !== '-' ? `${data.to.toFixed(0)} ms` : 'Unknown';
-                    let transcription = data.content || '';
+                    let transcription = data.content !== '-' ? `${data.content}` : '';
                     let textBox = document.getElementById("transcriptionBox");
-                    textBox.value += `[${from} - ${to}]: ${transcription}\n`;
+                    textBox.value += `${transcription}`;
                     textBox.scrollTop = textBox.scrollHeight;
                 } catch (e) {
                     console.error("Invalid JSON from server:", event.data);
