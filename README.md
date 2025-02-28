@@ -180,9 +180,8 @@ This project was inspired by:
 - https://github.com/QuentinFuxa/whisper_streaming_web
 
 And employed code from:
-- https://github.com/ufal/whisper_streaming (heavily used)
+- https://github.com/ufal/whisper_streaming (heavily in use)
 - https://github.com/snakers4/silero-vad
-- https://github.com/ufal/whisper_streaming/blob/47caa80588ee9c0fa8945a5d05f0aea6315eb837/silero_vad.py#L8
 
 ## License
 
