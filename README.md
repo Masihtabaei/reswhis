@@ -184,6 +184,10 @@ af, am, ar, as, az, ba, be, bg, bn, bo, br, bs, ca, cs, cy, da, de, el, en, es, 
 
 **Important:** we recommend the the `MODEL_SIZE=medium` for transcribing audios spoken in the German language.
 
+## Video
+
+https://github.com/user-attachments/assets/d0206750-8539-4db3-b4a3-c3140f445698
+
 ## Possible Problems
 
 Here you can find a list of known errors that we experienced with solutions to fix them. Please note that these are issues that are out of our control (e. g. some 3rd-party propreitary dependencies) and we came up with some custom workarounds.
