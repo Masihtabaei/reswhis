@@ -39,7 +39,7 @@ General and independent requirements:
 1. [uv](https://docs.astral.sh/uv/getting-started/installation/) for managing the project, packages and also dependencies
 2. FFmpeg ([2024-12-19-git-494c961379-full_build-www.gyan.dev](https://ffmpeg.org/download.html) was tested)
 
-Requirements for the **faster-whisper** backend:
+Requirements for the **faster-whisper** backend (recommended for systems engaging Nvidia GPUs):
 
 1. NVIDIA CUDA Toolkit ([version 12.6 Update 3](https://developer.nvidia.com/cuda-downloads) was tested)
 2. NVIDIA cuDNN Library ([version 9.6.0](https://developer.nvidia.com/cudnn-downloads) was tested)
@@ -49,14 +49,14 @@ Requirements for the **whisper-timestamped** backend:
 
 1. Nothing! We took care of all for you.
 
-Requirements for using [Whisper MLX](https://github.com/ml-explore/mlx-examples/tree/main/whisper) as backend:
+<!--- Requirements for using [Whisper MLX](https://github.com/ml-explore/mlx-examples/tree/main/whisper) as backend:
 
 1. For sure being priviliged to have one of Steve Job's creations (no offense for sure, just for fun :wink:)
 2. Running the following command in the project's main directory (as an intermediate step between the second and third steps mentioned in the **usage** subsection):
 ```
 uv add mlx-whisper
 ```
-
+-->
 
 Requirements for using our web client for testing (can get ignored if you develop your own client):
 
@@ -83,11 +83,16 @@ cd reswhis
 ```
 uv sync
 ```
-4. Click on the run.bat (you can also change the model size, language etc, in this batch file):
+4. Open following file in the code editor of your choice:
 ```
 run.bat
 ```
-5. Open the browser of your choice and head to the following address or send a GET HTTP-request to this endpoint using for e. g. [curl](https://curl.se/), [Wget](https://www.gnu.org/software/wget/) or [Postman](https://www.postman.com/):
+5. Change the configurations as needed and save the file (more info in the configuration section).
+6. Click on the run.bat:
+```
+run.bat
+```
+1. Open the browser of your choice and head to the following address or send a GET HTTP-request to this endpoint using for e. g. [curl](https://curl.se/), [Wget](https://www.gnu.org/software/wget/) or [Postman](https://www.postman.com/):
 ```
 protocol://ip:port/info
 ```
@@ -95,9 +100,15 @@ protocol://ip:port/info
 ```
 http://localhost:8000/info
 ```
+Hurra :fire:! Now you are officially done! You have three options for using this server:
 
+1. Web-based client
+2. Console-based client
+3. Custom client
 
-6. Change the directory
+For the web-based client:
+
+1. Change the directory
 ```
 cd clients
 ```
@@ -105,7 +116,54 @@ cd clients
 ```
 web_client.html
 ```
+---
 
+For the console-based client:
+
+1. Run the following command to find out name of the microphone you want to use:
+```
+ffmpeg -list_devices true -f dshow -i dummy
+```
+2. Use the following command with the microphone's name replaced to start the transcription:
+```
+ffmpeg -loglevel debug -f dshow -i audio="<microphone-name>" -ac 1 -ar 16000 -f s16le - | websocat.x86_64-pc-windows-gnu --binary -n ws://localhost:8000/transcribe
+```
+---
+
+For your custom client:
+
+Fill free to use the language, framework or library of choise. However, following points **must** be considered:
+
+1. Default sampling rate is 16000 (16 kHz).
+2. Audio should be mono channel.
+3. Data must be transferred as signed 16-bit integer low endian.
+4. `/info` is an REST-endpoint and `/transcribe` is a Websocket on.e
+
+
+## Configurations
+
+You can find and modify the following configurations inside the batch file:
+
+1. `BACKEND`
+```
+faster-whisper, whisper-timestamped, openai-whisper
+```
+
+2. `MODEL_SIZE`
+```
+tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large-v3, large, large-v3-turbo
+```
+
+3. `LANGUAGE`
+```
+af, am, ar, as, az, ba, be, bg, bn, bo, br, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fo, fr, gl, gu, ha, haw, he, hi, hr, ht, hu, hy, id, is, it, ja, jw, ka, kk, km, kn, ko, la, lb, ln, lo, lt, lv, mg, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, nn, no, oc, pa, pl, ps, pt, ro, ru, sa, sd, si, sk, sl, sn, so, sq, sr, su, sv, sw, ta, te, tg, th, tk, tl, tr, tt, uk, ur, uz, vi, yi, yo, zh
+```
+4. `SAMPLING_RATE` (can NOT be modified currently)
+5. `MINIMUM_CHUNK_SIZE` $\in \mathbb{N}$ (exlcusive Zero)
+6. `USE_VOICE_ACTIVITY_CONTROLLER` $\in \{True, False\}$
+7. `USE_VOICE_ACTIVITY_DETECTION` $\in \{True, False\}$
+
+**Important:** we recommend the the `MODEL_SIZE=medium` for transcribing audios spoken in the German language.
 
 ## Possible Problems
 
@@ -116,7 +174,15 @@ We experienced this problem on machines using **Microsoft Windows**. First stop 
 
 ## Acknowledgement
 
+This project was inspired by:
 
+- https://github.com/ufal/whisper_streaming
+- https://github.com/QuentinFuxa/whisper_streaming_web
+
+And employed code from:
+- https://github.com/ufal/whisper_streaming (heavily used)
+- https://github.com/snakers4/silero-vad
+- https://github.com/ufal/whisper_streaming/blob/47caa80588ee9c0fa8945a5d05f0aea6315eb837/silero_vad.py#L8
 
 ## License
 
