@@ -89,10 +89,7 @@ uv sync
 run.bat
 ```
 5. Change the configurations as needed and save the file (more info in the `configuration` subsection).
-6. Double click on the run.bat:
-```
-run.bat
-```
+6. Double click the batch file tor run it.
 
 **Important:**
 You can also run the server on a machine using **Linux** or **Mac** without the batch file. You first need to set the following environment variables (the exact commands depend on the operating system and the exact values depend on your use case [for more info please refer to the `configuration` subsection]):
