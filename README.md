@@ -45,9 +45,7 @@ Requirements for the **faster-whisper** backend (recommended for systems engagin
 2. NVIDIA cuDNN Library ([version 9.6.0](https://developer.nvidia.com/cudnn-downloads) was tested)
 
 
-Requirements for the **whisper-timestamped** backend:
-
-1. Nothing! We took care of all for you.
+Requirements for the **whisper-timestamped** backend: Nothing! We took care of all for you.
 
 <!--- Requirements for using [Whisper MLX](https://github.com/ml-explore/mlx-examples/tree/main/whisper) as backend:
 
@@ -57,6 +55,9 @@ Requirements for the **whisper-timestamped** backend:
 uv add mlx-whisper
 ```
 -->
+
+Requirements for the **openai-whisper** backend:
+1. An API key from OpenAI
 
 Requirements for using our web client for testing (can get ignored if you develop your own client):
 
@@ -87,12 +88,30 @@ uv sync
 ```
 run.bat
 ```
-5. Change the configurations as needed and save the file (more info in the configuration section).
-6. Click on the run.bat:
+5. Change the configurations as needed and save the file (more info in the `configuration` subsection).
+6. Double click on the run.bat:
 ```
 run.bat
 ```
-1. Open the browser of your choice and head to the following address or send a GET HTTP-request to this endpoint using for e. g. [curl](https://curl.se/), [Wget](https://www.gnu.org/software/wget/) or [Postman](https://www.postman.com/):
+
+**Important:**
+You can also run the server on a machine using **Linux** or **Mac** without the batch file. You first need to set the following environment variables (the exact commands depend on the operating system and the exact values depend on your use case [for more info please refer to the `configuration` subsection]):
+```
+BACKEND=<value>
+MODEL_SIZE=<value>
+LANGUAGE=<value>
+SAMPLING_RATE=16000 # Fix value (DO NOT CHANGE)
+MINIMUM_CHUNK_SIZE=<value>
+USE_VOICE_ACTIVITY_CONTROLLER=<value>
+USE_VOICE_ACTIVITY_DETECTION=<value>
+```
+
+The you can run the server directly as follows:
+```
+uv run uvicorn main:app
+```
+
+7. Open the browser of your choice and head to the following address or send a GET HTTP-request to this endpoint using for e. g. [curl](https://curl.se/), [Wget](https://www.gnu.org/software/wget/) or [Postman](https://www.postman.com/):
 ```
 protocol://ip:port/info
 ```
